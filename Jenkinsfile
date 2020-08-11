@@ -1,13 +1,33 @@
-node {
-	stage ('SCM checkout'){
-		git "https://github.com/Pooja-BR/TestSelenium.git"
-		}
-	stage ('Build'){
-    	dir("comtest") {
-	   sh "mvn clean install"
-       }
-       	dir("comtest/target") {
-	   sh "java -jar com.test-1.0-SNAPSHOT.jar"
-       }
-		}
+pipeline {
+    agent none
+    
+    stages {
+        stage('gitclone') {
+            agent any
+            steps {
+                sh "rm -rf TestSelenium"
+                sh "git clone https://github.com/Pooja-BR/TestSelenium.git"
+                sh "mvn clean -f mavenproject1"
+            }
+        }
+        stage('compile') {
+            agent any
+            steps {
+               sh "mvn compile -f TestSelenium"
+            }
+        }
+        stage('Test') { 
+            agent any
+            steps {
+                sh "mvn test -f TestSelenium" 
+            }
+        }
+         stage('Deploy') { 
+            agent any
+            steps {
+                sh "mvn package -f TestSelenium" 
+            }
+        }
+    }
 }
+
